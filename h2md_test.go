@@ -4,43 +4,33 @@ import (
 	"fmt"
 	"h2md/hmutil"
 	"h2md/parse"
-	"io/ioutil"
-	"log"
-	"os"
+	"regexp"
 	"testing"
 )
 
-func readFile() string {
-	fr, err := os.OpenFile("html/index1.html", os.O_RDONLY, 0644)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer func() {
-		err = fr.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
-	contents, err := ioutil.ReadAll(fr)
-	html := string(contents)
-	return html
-}
-
-// Test4000
+// Test4000 测试简书的流程
 func Test4000(t *testing.T) {
 	myStruct := parse.Jianshu{}
 	lang := "py"
 	link := "this is test link"
-	html := readFile()
+	html := hmutil.ReadFile("html/index1.html")
 	title := myStruct.GetTitle(html, "")
 	body := myStruct.GetBodyHTML(html, "//*[@class=\"_2rhmJa\"]")
+	//fmt.Println(body)
 	markdown := hmutil.HtmlToMarkdown(title, link, body, lang)
+	_ = markdown
 	fmt.Println(markdown)
 }
 
-// Test4001
+// Test4001 测试正则替换
 func Test4001(t *testing.T) {
-
+	s := "two':20,'three':30})**xs 第x as一：**r.zadd('example', {'o**xs 第x as一：**ne':10, 'two':20,'three':30})参数必须是字典，网上的教程会报错"
+	var rexTemp = regexp.MustCompile("\\*\\*\\s*.*\\s*.\\*\\*")
+	//var rexTemp = regexp.MustCompile("\\*\\*\\s*.*\\s*.\\*\\*\\s+")
+	var results []string = rexTemp.FindAllString(s, -1)
+	for _, v := range results {
+		fmt.Println(v)
+	}
 }
 
 // Test4002

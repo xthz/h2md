@@ -35,6 +35,10 @@ func (w BaseSite) ProcessDiv(div string) string {
 		if strings.Contains(code, "data-original-src") {
 			code = strings.Replace(code, "data-original-src", "src", -1)
 		}
+		code = strings.Replace(code, " </strong>", "</strong>", -1)
+		code = strings.Replace(code, "&nbsp;</strong>", "</strong>", -1)
+		code = strings.Replace(code, "&nbsp;&nbsp;</strong>", "</strong>", -1)
+		code = strings.Replace(code, "</strong>", "</strong> &nbsp;&nbsp;", -1)
 		html += "\n" + code
 	}
 	return html
