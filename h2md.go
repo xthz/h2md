@@ -17,7 +17,7 @@ func main() {
 		Title:    "H2MD",
 		AssignTo: &window,
 		Size: Size{
-			Width:  210,
+			Width:  230,
 			Height: 200,
 		},
 		Layout: VBox{},
