@@ -18,5 +18,7 @@
 
 rsrc -manifest h2md.manifest -ico favicon.ico -o rsrc.syso
 
+go build -o C:\Users\%username%\Desktop\app.exe
+
 go build -ldflags="-H windowsgui" -o C:\Users\%username%\Desktop\app.exe
 

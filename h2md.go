@@ -140,7 +140,7 @@ func main() {
 					lang := inTE.Text()
 					link, _ := hmutil.UtilPaste()
 					html := hmutil.Request(link)
-					title := myStruct.GetTitle(html, "")
+					title := myStruct.GetTitle(html, "//*[@id=\"cb_post_title_url\"]/span")
 					body := myStruct.GetBodyHTML(html, "//*[@id=\"cnblogs_post_body\"]")
 					markdown := hmutil.HtmlToMarkdown(title, link, body, lang)
 					_ = hmutil.UtilCopy(markdown)
