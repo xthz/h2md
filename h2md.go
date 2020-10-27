@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"github.com/lxn/win"
@@ -8,6 +9,75 @@ import (
 	"h2md/parse"
 	"log"
 )
+
+func notify() {
+	mw, err := walk.NewMainWindow()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	icon, err := walk.Resources.Icon("img/stop.ico")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ni, err := walk.NewNotifyIcon(mw)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		err = ni.Dispose()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	if err := ni.SetIcon(icon); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := ni.SetToolTip("click menu to exit."); err != nil {
+		log.Fatal(err)
+	}
+
+	ni.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
+		if button != walk.LeftButton {
+			return
+		}
+
+		if err := ni.ShowCustom(
+			"Walk NotifyIcon Example",
+			"There are multiple ShowX methods sporting different icons.",
+			icon); err != nil {
+
+			log.Fatal(err)
+		}
+	})
+
+	// We put an exit action into the context menu.
+	exitAction := walk.NewAction()
+	if err := exitAction.SetText("E&xit"); err != nil {
+		log.Fatal(err)
+	}
+	exitAction.Triggered().Attach(func() { walk.App().Exit(0) })
+	if err := ni.ContextMenu().Actions().Add(exitAction); err != nil {
+		log.Fatal(err)
+	}
+
+	// The notify icon is hidden initially, so we have to make it visible.
+	if err := ni.SetVisible(true); err != nil {
+		log.Fatal(err)
+	}
+
+	// Now that the icon is visible, we can bring up an info balloon.
+	if err := ni.ShowInfo("Walk NotifyIcon Example", "Click the icon to show again."); err != nil {
+		log.Fatal(err)
+	}
+
+	// Run the message loop.
+	mw.Run()
+}
 
 func main() {
 	var inTE, outTE *walk.TextEdit
@@ -20,6 +90,7 @@ func main() {
 			Width:  230,
 			Height: 200,
 		},
+		//Icon: appIcon,
 		Layout: VBox{},
 		Children: []Widget{
 			Label{
@@ -96,6 +167,10 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+
+	icon, _ := walk.NewIconFromFile("favicon.ico")
+	_ = window.SetIcon(icon)
+
 	win.SetWindowLong(
 		window.Handle(), win.GWL_STYLE,
 		win.GetWindowLong(window.Handle(), win.GWL_STYLE) & ^win.WS_MAXIMIZEBOX & ^win.WS_THICKFRAME,
