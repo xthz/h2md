@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/lxn/walk"
-	. "github.com/lxn/walk/declarative"
+	"github.com/lxn/walk/declarative"
 	"github.com/lxn/win"
 	"h2md/hmutil"
 	"h2md/parse"
@@ -83,26 +83,26 @@ func main() {
 	var inTE, outTE *walk.TextEdit
 	var window *walk.MainWindow
 
-	err := MainWindow{
+	err := declarative.MainWindow{
 		Title:    "H2MD",
 		AssignTo: &window,
-		Size: Size{
+		Size: declarative.Size{
 			Width:  230,
 			Height: 200,
 		},
 		//Icon: appIcon,
-		Layout: VBox{},
-		Children: []Widget{
-			Label{
+		Layout: declarative.VBox{},
+		Children: []declarative.Widget{
+			declarative.Label{
 				Text: "Language:",
 			},
-			HSplitter{
-				Children: []Widget{
-					TextEdit{AssignTo: &inTE},
-					TextEdit{AssignTo: &outTE, ReadOnly: true},
+			declarative.HSplitter{
+				Children: []declarative.Widget{
+					declarative.TextEdit{AssignTo: &inTE},
+					declarative.TextEdit{AssignTo: &outTE, ReadOnly: true},
 				},
 			},
-			PushButton{
+			declarative.PushButton{
 				Text: "jianshu.com",
 				OnClicked: func() {
 					myStruct := parse.Jianshu{}
@@ -117,7 +117,7 @@ func main() {
 					_ = outTE.SetText("done")
 				},
 			},
-			PushButton{
+			declarative.PushButton{
 				Text: "csdn.net",
 				OnClicked: func() {
 					myStruct := parse.CSDN{}
@@ -132,7 +132,7 @@ func main() {
 					_ = outTE.SetText("done")
 				},
 			},
-			PushButton{
+			declarative.PushButton{
 				Text: "cnblogs.com",
 				OnClicked: func() {
 					myStruct := parse.CNBlog{}
@@ -147,7 +147,7 @@ func main() {
 					_ = outTE.SetText("done")
 				},
 			},
-			PushButton{
+			declarative.PushButton{
 				Text: "weixin.qq.com",
 				OnClicked: func() {
 					myStruct := parse.Weixin{}
