@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"h2md/hmutil"
 	"h2md/parse"
+	"io/ioutil"
+	"net/url"
+	"os"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -38,49 +42,166 @@ func Test4002(t *testing.T) {
 
 }
 
-// Test4003
-func Test4003(t *testing.T) {
-
+// Test5000 读取文件为[]byte
+func readFile() []byte {
+	fr, err := os.OpenFile("favicon.ico", os.O_RDONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer func() {
+		err = fr.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+	content, err := ioutil.ReadAll(fr)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return content
 }
 
 // Test4004
 func Test4004(t *testing.T) {
+	data := readFile()
+	if ioutil.WriteFile("wh.ico", data, 0644) == nil {
+		fmt.Println("done:", data)
+	}
 
+	//name := "testwritefile.txt"
+	//content := "Hello, xxbandy.github.io!\n"
+	//WriteWithIoutil(name, content)
+}
+
+//WriteWithIoutil 使用ioutil.WriteFile方式写入文件,是将[]byte内容写入文件,如果content字符串中没有换行符的话，默认就不会有换行符
+func WriteWithIoutil(name, content string) {
+	data := []byte(content)
+	if ioutil.WriteFile(name, data, 0644) == nil {
+		fmt.Println("done:", content)
+	}
 }
 
 // Test4005
 func Test4005(t *testing.T) {
-
+	as := "65,101,108,108,111,32,98,111,121"
+	var a = []byte(as)
+	var b = string(a)
+	fmt.Println(b)
 }
 
 // Test4006
 func Test4006(t *testing.T) {
-
+	content := ""
+	u, err := url.Parse(content)
+	if err != nil {
+		fmt.Println(err)
+	}
+	_ = u
 }
 
-// Test4007
+// Test4007 url.Parse相关解析
 func Test4007(t *testing.T) {
+	Url := "https://root:123456@www.baidu.com:0000/login?name=xiaoming&name=xiaoqing&age=24&age1=23#f2fffff"
+	//Parse函数解析Url为一个URL结构体，Url可以是绝对地址，也可以是相对地址
+	//	type URL struct {
+	//    Scheme   string
+	//    Opaque   string    // 编码后的不透明数据
+	//    User     *Userinfo // 用户名和密码信息
+	//    Host     string    // host或host:port
+	//    Path     string
+	//    RawQuery string // 编码后的查询字符串，没有'?'
+	//    Fragment string // 引用的片段（文档位置），没有'#'
+	//}
+	u, err := url.Parse(Url)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//fmt.Println(u)
+	//fmt.Println(u.Host)    // www.baidu.com:0000
+	//fmt.Println(u.Hostname())  // www.baidu.com
+	//fmt.Println(u.String())
+	fmt.Println(u.Path)
+
+	//获取参数 将查询参数解析为一个map。 map以查询字符串为键，对应值字符串切片为值。
+	urlParam := u.RawQuery
+	fmt.Println("urlParam:", urlParam) // name=xiaoming&name=xiaoqing&age=24&age1=23
+	m, err := url.ParseQuery(urlParam)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(m)
+	fmt.Println("****************************")
+	var k string
+	var v []string
+	for k, v = range m {
+		fmt.Printf("k: %T, %v; v: %T, %v\n", k, k, v, v)
+		//fmt.Println(k, v)
+	}
+	fmt.Println("****************************")
+	//与ParseQuery功能一样，只是将上边的方法分装了一下
+	m1 := u.Query()
+	fmt.Println(m1)
+	for k, v := range m1 {
+		fmt.Println(k, v)
+	}
+
+	//得到查询片段信息
+	fmt.Println(u.Fragment)
 
 }
 
 // Test4008
 func Test4008(t *testing.T) {
-
+	// 生成参数形如：name=xiaoming&name=xiaoqing&age=24&age1=23
+	v := url.Values{}
+	//添加一个k-v值
+	//v.Set("name", "xiaoming")
+	//v.Add("name", "xiaoqing")
+	v.Set("Age", "23")
+	//fmt.Println(v)
+	//fmt.Println(v.Get("name"))
+	//v.Del("name")
+	//fmt.Println(v)
+	//把map编码成name=xiaoming&name=xiaoqing&age=24&age1=23的形式
+	v.Set("name", "xiaoming")
+	v.Add("name", "xiao qing")
+	fmt.Println(v.Encode())
 }
 
-// Test4009
+// Test4009 测试博客园的整体流程
 func Test4009(t *testing.T) {
-
+	myStruct := parse.CNBlog{}
+	lang := "sh"
+	link := "baidu.com"
+	html := hmutil.ReadFile("html/index1.html")
+	title := myStruct.GetTitle(html, "//*[@id=\"cb_post_title_url\"]/span")
+	body := myStruct.GetBodyHTML(html, "//*[@id=\"cnblogs_post_body\"]")
+	markdown := hmutil.HtmlToMarkdown(title, link, body, lang)
+	_ = hmutil.UtilCopy(markdown)
+	fmt.Println(markdown)
 }
 
 // Test4010
 func Test4010(t *testing.T) {
-
+	myStruct := parse.CNBlog{}
+	lang := "sh"
+	link := "baidu.com"
+	html := hmutil.ReadFile("html/index1.html")
+	title := myStruct.GetTitle(html, "//*[@id=\"cb_post_title_url\"]/span")
+	_ = lang + link + title
+	body := myStruct.GetBodyHTML(html, "//*[@id=\"cnblogs_post_body\"]")
+	body = strings.ReplaceAll(body, "<p>", "")
+	body = strings.ReplaceAll(body, "</p>", "")
+	//fmt.Println(body)
+	//_ = hmutil.UtilCopy(body)
+	markdown := hmutil.HtmlToMarkdown(title, link, body, lang)
+	_ = hmutil.UtilCopy(markdown)
+	fmt.Println(markdown)
 }
 
 // Test4011
 func Test4011(t *testing.T) {
-
+	fmt.Println("hello world")
 }
 
 // Test4012
